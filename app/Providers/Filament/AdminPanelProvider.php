@@ -16,6 +16,7 @@ use App\Filament\Resources\TransactionResource;
 use App\Filament\Resources\UserResource;
 use App\Filament\Widgets\LatestTransactionsWidget;
 use App\Filament\Widgets\LowStockProductsWidget;
+use App\Filament\Widgets\OperationalHeroWidget;
 use App\Filament\Widgets\SalesChartWidget;
 use App\Filament\Widgets\StatsOverviewWidget;
 use Filament\Http\Middleware\Authenticate;
@@ -82,6 +83,7 @@ class AdminPanelProvider extends PanelProvider
                 BusinessAssistant::class,
             ])
             ->widgets([
+                OperationalHeroWidget::class,
                 StatsOverviewWidget::class,
                 SalesChartWidget::class,
                 LatestTransactionsWidget::class,
