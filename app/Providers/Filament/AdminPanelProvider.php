@@ -51,6 +51,9 @@ class AdminPanelProvider extends PanelProvider
                 'info'    => Color::Teal,
             ])
             ->brandName('SMARTCASH • KASSARASA')
+            ->brandLogo(fn () => view('filament.brand-logo'))
+            ->brandLogoHeight('2.5rem')
+            ->favicon(asset('images/logo-kassarasa.jpg'))
             ->darkMode(false)
             ->sidebarCollapsibleOnDesktop()
             ->navigationGroups([

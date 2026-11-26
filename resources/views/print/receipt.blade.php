@@ -80,6 +80,7 @@
 
     <div class="receipt">
         <div class="center">
+            <img src="{{ asset('images/logo-kassarasa.jpg') }}" alt="KassaRasa" style="width:48px;height:48px;border-radius:8px;margin-bottom:4px;object-fit:cover;">
             <div class="title">KASSARASA</div>
             <div class="muted bold">SMARTCASH UMKM KULINER</div>
             <div class="muted">Jl. Kuliner Nusantara No. 1</div>
