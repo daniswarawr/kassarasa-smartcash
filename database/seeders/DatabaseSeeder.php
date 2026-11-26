@@ -17,13 +17,22 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Owner & Kasir users
+        // Owner, Pemilik Usaha & Kasir users
         User::updateOrCreate(
             ['email' => 'admin@kasirdigital.com'],
             [
-                'name'     => 'Owner Kassarasa (SmartCash)',
+                'name'     => 'Admin Kassarasa (SmartCash)',
                 'role'     => 'owner',
                 'password' => Hash::make('admin123'),
+            ]
+        );
+
+        User::updateOrCreate(
+            ['email' => 'pemilik@kassarasa.com'],
+            [
+                'name'     => 'Pemilik Usaha Kassarasa',
+                'role'     => 'owner',
+                'password' => Hash::make('pemilik123'),
             ]
         );
 
