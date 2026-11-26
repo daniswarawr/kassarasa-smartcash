@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\Expense;
 use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
@@ -12,6 +13,8 @@ use Filament\Pages\Page;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class LaporanPenjualan extends Page implements HasForms
 {
@@ -28,6 +31,11 @@ class LaporanPenjualan extends Page implements HasForms
     protected static ?string $navigationGroup = 'Keuangan & Laporan';
 
     protected static ?int $navigationSort = 2;
+
+    public static function canAccess(): bool
+    {
+        return Auth::user()?->isOwner() ?? true;
+    }
 
     public ?string $dari_tanggal = null;
     public ?string $sampai_tanggal = null;
@@ -95,6 +103,40 @@ class LaporanPenjualan extends Page implements HasForms
     public function getLabaKotor(): float
     {
         return $this->getTotalPendapatan() - $this->getTotalHpp();
+    }
+
+    public function getTotalBiayaOperasional(): float
+    {
+        return (float) Expense::query()
+            ->when($this->dari_tanggal, fn ($q) => $q->whereDate('expense_date', '>=', $this->dari_tanggal))
+            ->when($this->sampai_tanggal, fn ($q) => $q->whereDate('expense_date', '<=', $this->sampai_tanggal))
+            ->sum('amount');
+    }
+
+    public function getLabaBersih(): float
+    {
+        return $this->getLabaKotor() - $this->getTotalBiayaOperasional();
+    }
+
+    public function exportCsv(): StreamedResponse
+    {
+        $transactions = $this->getTransactions();
+        $filename = 'laporan-penjualan-' . ($this->dari_tanggal ?? 'all') . '-sd-' . ($this->sampai_tanggal ?? 'all') . '.csv';
+
+        return response()->streamDownload(function () use ($transactions) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, ['Kode Transaksi', 'Tanggal', 'Pelanggan', 'Metode Pembayaran', 'Total (Rp)']);
+            foreach ($transactions as $tx) {
+                fputcsv($handle, [
+                    $tx->transaction_code,
+                    $tx->transaction_date?->format('Y-m-d H:i:s'),
+                    $tx->customer_name ?? '-',
+                    strtoupper($tx->payment_method),
+                    (float) $tx->total_price,
+                ]);
+            }
+            fclose($handle);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
     public function getProdukTerlaris(): \Illuminate\Support\Collection

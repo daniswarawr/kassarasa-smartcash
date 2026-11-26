@@ -2,13 +2,18 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\BusinessAssistant;
 use App\Filament\Pages\HppCalculator;
 use App\Filament\Pages\KasirPos;
+use App\Filament\Pages\KitchenDisplay;
 use App\Filament\Pages\LaporanPenjualan;
+use App\Filament\Pages\ShiftKasir;
 use App\Filament\Resources\CategoryResource;
+use App\Filament\Resources\ExpenseResource;
 use App\Filament\Resources\IngredientResource;
 use App\Filament\Resources\ProductResource;
 use App\Filament\Resources\TransactionResource;
+use App\Filament\Resources\UserResource;
 use App\Filament\Widgets\LatestTransactionsWidget;
 use App\Filament\Widgets\LowStockProductsWidget;
 use App\Filament\Widgets\SalesChartWidget;
@@ -61,12 +66,17 @@ class AdminPanelProvider extends PanelProvider
                 CategoryResource::class,
                 IngredientResource::class,
                 TransactionResource::class,
+                ExpenseResource::class,
+                UserResource::class,
             ])
             ->pages([
                 Dashboard::class,
                 KasirPos::class,
+                KitchenDisplay::class,
+                ShiftKasir::class,
                 HppCalculator::class,
                 LaporanPenjualan::class,
+                BusinessAssistant::class,
             ])
             ->widgets([
                 StatsOverviewWidget::class,

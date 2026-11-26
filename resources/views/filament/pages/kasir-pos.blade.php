@@ -114,6 +114,16 @@
                         </div>
 
                         <div>
+                            <label class="mb-1 block text-xs font-medium text-gray-600">Nama Pelanggan / No. Meja (Opsional)</label>
+                            <input
+                                type="text"
+                                wire:model="customer_name"
+                                placeholder="Contoh: Budi / Meja 4"
+                                class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                            />
+                        </div>
+
+                        <div>
                             <label class="mb-1 block text-xs font-medium text-gray-600">Metode Pembayaran</label>
                             <select wire:model.live="payment_method" class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500">
                                 <option value="cash">Tunai (Cash)</option>
@@ -185,7 +195,23 @@
                             <span>Total</span>
                             <span>Rp {{ number_format($lastTx->total_price, 0, ',', '.') }}</span>
                         </div>
-                        <div class="pt-2 text-right">
+                        <div class="pt-3 flex flex-wrap items-center gap-2">
+                            <a
+                                href="{{ route('transactions.print', $lastTx) }}?auto=1"
+                                target="_blank"
+                                class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-primary-600 px-3 py-2 text-xs font-semibold text-white hover:bg-primary-700"
+                            >
+                                🖨️ Cetak Struk
+                            </a>
+                            <a
+                                href="{{ $lastTx->whatsapp_url }}"
+                                target="_blank"
+                                class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-lime-600 px-3 py-2 text-xs font-semibold text-white hover:bg-lime-700"
+                            >
+                                💬 Kirim WhatsApp
+                            </a>
+                        </div>
+                        <div class="pt-1 text-right">
                             <a
                                 href="{{ route('filament.admin.resources.transactions.view', $lastTx) }}"
                                 class="text-xs font-semibold text-primary-700 hover:underline"

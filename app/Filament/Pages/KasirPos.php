@@ -2,12 +2,14 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\CashierShift;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class KasirPos extends Page
@@ -32,6 +34,8 @@ class KasirPos extends Page
     public array $cart = [];
 
     public string $payment_method = 'cash';
+
+    public string $customer_name = '';
 
     public float $cash_received = 0;
 
@@ -137,13 +141,36 @@ class KasirPos extends Page
         }
 
         $transaction = DB::transaction(function () use ($total) {
+            $cashReceived = $this->payment_method === 'cash'
+                ? ($this->cash_received > 0 ? (float) $this->cash_received : $total)
+                : 0;
+            $changeAmount = $this->payment_method === 'cash'
+                ? max(0, $cashReceived - $total)
+                : 0;
+
             $tx = Transaction::create([
+                'user_id'          => Auth::id(),
                 'transaction_code' => 'TRX-' . strtoupper(substr(md5(uniqid((string) mt_rand(), true)), 0, 8)),
+                'customer_name'    => $this->customer_name !== '' ? $this->customer_name : null,
                 'total_price'      => $total,
+                'cash_received'    => $cashReceived,
+                'change_amount'    => $changeAmount,
                 'payment_method'   => $this->payment_method,
                 'status'           => 'completed',
+                'kitchen_status'   => 'waiting',
                 'transaction_date' => now(),
             ]);
+
+            // Tambahkan penjualan tunai ke shift kasir yang sedang terbuka (jika ada)
+            if ($this->payment_method === 'cash') {
+                $openShift = CashierShift::where('user_id', Auth::id())
+                    ->where('status', 'open')
+                    ->latest('opened_at')
+                    ->first();
+                if ($openShift) {
+                    $openShift->increment('expected_cash', $total);
+                }
+            }
 
             foreach ($this->cart as $item) {
                 $product = Product::with('recipes.ingredient')->lockForUpdate()->find($item['product_id']);
@@ -181,6 +208,7 @@ class KasirPos extends Page
         });
 
         $this->lastTransactionId = $transaction->id;
+        $this->customer_name = '';
         $this->clearCart();
 
         Notification::make()

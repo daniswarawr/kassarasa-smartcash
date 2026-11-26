@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class IngredientResource extends Resource
 {
@@ -25,6 +26,11 @@ class IngredientResource extends Resource
     protected static ?string $navigationGroup = 'Produk & Smart Inventory';
 
     protected static ?int $navigationSort = 3;
+
+    public static function canAccess(): bool
+    {
+        return Auth::user()?->isOwner() ?? true;
+    }
 
     public static function getNavigationBadge(): ?string
     {

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
+use App\Models\Expense;
 use App\Models\Ingredient;
 use App\Models\Product;
 use App\Models\ProductRecipe;
@@ -16,12 +17,22 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Admin user
-        User::firstOrCreate(
+        // Owner & Kasir users
+        User::updateOrCreate(
             ['email' => 'admin@kasirdigital.com'],
             [
-                'name'     => 'Admin Kassarasa (SmartCash)',
+                'name'     => 'Owner Kassarasa (SmartCash)',
+                'role'     => 'owner',
                 'password' => Hash::make('admin123'),
+            ]
+        );
+
+        User::updateOrCreate(
+            ['email' => 'kasir@kasirdigital.com'],
+            [
+                'name'     => 'Kasir 1 (Shift Pagi)',
+                'role'     => 'cashier',
+                'password' => Hash::make('kasir123'),
             ]
         );
 
@@ -151,6 +162,20 @@ class DatabaseSeeder extends Seeder
                         ]));
                     }
                 }
+            }
+        }
+
+        // Sample Expenses (Biaya Operasional)
+        if (Expense::count() === 0) {
+            $owner = User::where('email', 'admin@kasirdigital.com')->first();
+            $expenses = [
+                ['user_id' => $owner?->id, 'title' => 'Gas LPG 12kg (2 Tabung)',   'category' => 'gas',         'amount' => 420000,  'expense_date' => now()->subDays(10)->toDateString()],
+                ['user_id' => $owner?->id, 'title' => 'Tagihan Listrik & Air',      'category' => 'listrik_air', 'amount' => 650000,  'expense_date' => now()->subDays(5)->toDateString()],
+                ['user_id' => $owner?->id, 'title' => 'Gaji Staf Dapur & Kasir',    'category' => 'gaji',        'amount' => 2500000, 'expense_date' => now()->subDays(2)->toDateString()],
+                ['user_id' => $owner?->id, 'title' => 'Belanja Kemasan & Sedotan',  'category' => 'bahan_baku',  'amount' => 300000,  'expense_date' => now()->subDay()->toDateString()],
+            ];
+            foreach ($expenses as $exp) {
+                Expense::create($exp);
             }
         }
     }

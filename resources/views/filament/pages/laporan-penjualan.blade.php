@@ -7,9 +7,18 @@
         {{-- Filter Form --}}
         <x-filament::section>
             <x-slot name="heading">
-                <div class="flex items-center gap-2">
-                    <x-heroicon-o-funnel class="h-5 w-5 text-primary-500"/>
-                    Filter Laporan
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <x-heroicon-o-funnel class="h-5 w-5 text-primary-500"/>
+                        Filter Laporan
+                    </div>
+                    <button
+                        type="button"
+                        wire:click="exportCsv"
+                        class="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-700"
+                    >
+                        📥 Export CSV / Excel
+                    </button>
                 </div>
             </x-slot>
             <form wire:submit.prevent>
@@ -18,49 +27,45 @@
         </x-filament::section>
 
         {{-- Summary Cards --}}
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
             <x-filament::section>
-                <div class="flex items-center gap-4">
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Pendapatan</p>
-                        <p class="mt-1 text-2xl font-bold text-primary-700 dark:text-primary-400">
-                            Rp {{ number_format($this->getTotalPendapatan(), 0, ',', '.') }}
-                        </p>
-                        <p class="mt-1 text-xs text-gray-400">{{ number_format($this->getTotalTransaksi()) }} transaksi selesai</p>
-                    </div>
-                    <div class="rounded-full bg-emerald-100 p-3 dark:bg-emerald-900/30">
-                        <x-heroicon-o-banknotes class="h-7 w-7 text-primary-700 dark:text-primary-400"/>
-                    </div>
+                <div>
+                    <p class="text-xs font-medium text-gray-500">Total Pendapatan</p>
+                    <p class="mt-1 text-xl font-bold text-primary-700">
+                        Rp {{ number_format($this->getTotalPendapatan(), 0, ',', '.') }}
+                    </p>
+                    <p class="mt-1 text-xs text-gray-400">{{ number_format($this->getTotalTransaksi()) }} transaksi selesai</p>
                 </div>
             </x-filament::section>
 
             <x-filament::section>
-                <div class="flex items-center gap-4">
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Estimasi Total HPP</p>
-                        <p class="mt-1 text-2xl font-bold text-amber-600 dark:text-amber-400">
-                            Rp {{ number_format($this->getTotalHpp(), 0, ',', '.') }}
-                        </p>
-                        <p class="mt-1 text-xs text-gray-400">Modal bahan & produk terjual</p>
-                    </div>
-                    <div class="rounded-full bg-amber-100 p-3 dark:bg-amber-900/30">
-                        <x-heroicon-o-calculator class="h-7 w-7 text-amber-600 dark:text-amber-400"/>
-                    </div>
+                <div>
+                    <p class="text-xs font-medium text-gray-500">Estimasi HPP & Laba Kotor</p>
+                    <p class="mt-1 text-xl font-bold text-lime-700">
+                        Rp {{ number_format($this->getLabaKotor(), 0, ',', '.') }}
+                    </p>
+                    <p class="mt-1 text-xs text-gray-400">HPP: Rp {{ number_format($this->getTotalHpp(), 0, ',', '.') }}</p>
                 </div>
             </x-filament::section>
 
             <x-filament::section>
-                <div class="flex items-center gap-4">
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Estimasi Laba Kotor</p>
-                        <p class="mt-1 text-2xl font-bold text-lime-700 dark:text-lime-400">
-                            Rp {{ number_format($this->getLabaKotor(), 0, ',', '.') }}
-                        </p>
-                        <p class="mt-1 text-xs text-gray-400">Belum dikurangi biaya operasional</p>
-                    </div>
-                    <div class="rounded-full bg-lime-100 p-3 dark:bg-lime-900/30">
-                        <x-heroicon-o-arrow-trending-up class="h-7 w-7 text-lime-700 dark:text-lime-400"/>
-                    </div>
+                <div>
+                    <p class="text-xs font-medium text-gray-500">Biaya Operasional</p>
+                    <p class="mt-1 text-xl font-bold text-rose-600">
+                        Rp {{ number_format($this->getTotalBiayaOperasional(), 0, ',', '.') }}
+                    </p>
+                    <p class="mt-1 text-xs text-gray-400">Listrik, gas, gaji, sewa, dll.</p>
+                </div>
+            </x-filament::section>
+
+            <x-filament::section>
+                <div>
+                    <p class="text-xs font-medium text-gray-500">Estimasi Laba Bersih</p>
+                    @php $net = $this->getLabaBersih(); @endphp
+                    <p class="mt-1 text-xl font-bold {{ $net >= 0 ? 'text-emerald-700' : 'text-rose-700' }}">
+                        Rp {{ number_format($net, 0, ',', '.') }}
+                    </p>
+                    <p class="mt-1 text-xs text-gray-400">Laba kotor - biaya operasional</p>
                 </div>
             </x-filament::section>
         </div>

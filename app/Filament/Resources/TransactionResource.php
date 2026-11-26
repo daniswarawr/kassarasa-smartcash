@@ -242,6 +242,12 @@ class TransactionResource extends Resource
                     }),
             ])
             ->actions([
+                Tables\Actions\Action::make('print')
+                    ->label('Struk')
+                    ->icon('heroicon-m-printer')
+                    ->color('primary')
+                    ->url(fn (Transaction $record) => route('transactions.print', $record) . '?auto=1')
+                    ->openUrlInNewTab(),
                 Tables\Actions\ViewAction::make()->label('Detail'),
                 Tables\Actions\EditAction::make()->label('Edit'),
                 Tables\Actions\DeleteAction::make()->label('Hapus'),

@@ -6,6 +6,7 @@ use App\Models\Ingredient;
 use App\Models\Product;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\Auth;
 
 class HppCalculator extends Page
 {
@@ -20,6 +21,11 @@ class HppCalculator extends Page
     protected static ?string $navigationGroup = 'Keuangan & Laporan';
 
     protected static ?int $navigationSort = 1;
+
+    public static function canAccess(): bool
+    {
+        return Auth::user()?->isOwner() ?? true;
+    }
 
     public ?int $selected_product_id = null;
 

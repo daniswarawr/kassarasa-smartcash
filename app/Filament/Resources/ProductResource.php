@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductResource\Pages;
 use App\Models\Category;
+use App\Models\Ingredient;
 use App\Models\Product;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -11,6 +12,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class ProductResource extends Resource
 {
@@ -27,6 +29,11 @@ class ProductResource extends Resource
     protected static ?string $navigationGroup = 'Produk & Smart Inventory';
 
     protected static ?int $navigationSort = 1;
+
+    public static function canAccess(): bool
+    {
+        return Auth::user()?->isOwner() ?? true;
+    }
 
     public static function form(Form $form): Form
     {
@@ -90,6 +97,37 @@ class ProductResource extends Resource
                             ->required()
                             ->default('available'),
                     ]),
+                ]),
+
+            Forms\Components\Section::make('Komposisi Resep (Smart Inventory & Auto-HPP)')
+                ->description('Opsional: Tentukan takaran bahan baku per 1 porsi. Stok bahan akan otomatis berkurang saat transaksi di Kasir POS.')
+                ->schema([
+                    Forms\Components\Repeater::make('recipes')
+                        ->relationship('recipes')
+                        ->label('Daftar Bahan Baku')
+                        ->schema([
+                            Forms\Components\Select::make('ingredient_id')
+                                ->label('Bahan Baku')
+                                ->options(Ingredient::orderBy('name')->get()->mapWithKeys(fn ($i) => [
+                                    $i->id => "{$i->name} ({$i->unit} • Rp " . number_format((float) $i->cost_per_unit, 0, ',', '.') . "/{$i->unit})",
+                                ]))
+                                ->required()
+                                ->searchable()
+                                ->columnSpan(2),
+
+                            Forms\Components\TextInput::make('quantity_used')
+                                ->label('Takaran / Porsi')
+                                ->numeric()
+                                ->required()
+                                ->minValue(0.001)
+                                ->step(0.01)
+                                ->default(0.1)
+                                ->helperText('Sesuai satuan bahan (kg/liter/pcs)'),
+                        ])
+                        ->columns(3)
+                        ->addActionLabel('Tambah Bahan Resep')
+                        ->defaultItems(0)
+                        ->collapsible(),
                 ]),
 
             Forms\Components\Section::make('Foto Produk')

@@ -22,6 +22,17 @@ class EditProduct extends EditRecord
         return $this->getResource()::getUrl('index');
     }
 
+    protected function afterSave(): void
+    {
+        $product = $this->record->fresh(['recipes.ingredient']);
+        if ($product && $product->recipes->isNotEmpty()) {
+            $calculatedHpp = $product->recipes->sum(function ($recipe) {
+                return (float) $recipe->quantity_used * (float) ($recipe->ingredient->cost_per_unit ?? 0);
+            });
+            $product->update(['hpp' => round($calculatedHpp, 0)]);
+        }
+    }
+
     protected function getSavedNotificationTitle(): ?string
     {
         return 'Produk berhasil diperbarui';
